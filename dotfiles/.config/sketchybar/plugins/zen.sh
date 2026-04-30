@@ -2,10 +2,9 @@
 SB="/opt/homebrew/bin/sketchybar"
 JQ="/opt/homebrew/bin/jq"
 
-# Items to hide (Stats + Workspaces + Apps)
-ITEMS=("clock" "battery" "disk" "volume" "front_app" "apple.logo")
-SPACES=("space.1" "space.2" "space.3" "space.4" "space.5")
-APPS=("apps.1" "apps.2" "apps.3" "apps.4" "apps.5")
+# Colors (matching sketchybarrc)
+BAR_COLOR=0xff1e1e2e
+TRANSPARENT=0x00000000
 
 # Check if ANY item is hidden to determine current state
 # We use clock as our "canary"
@@ -25,15 +24,31 @@ else
 fi
 
 if [ "$ACTION" = "hide" ]; then
-  for item in "${ITEMS[@]}" "${SPACES[@]}" "${APPS[@]}"; do
-    $SB --set "$item" drawing=off
-  done
-  $SB --set zen_mode icon.color=0xffa6e3a1
+  # Hide all items (using --set --all)
+  $SB --set "/.*/" drawing=off
+  
+  # Keep only zen_mode visible
+  $SB --set zen_mode drawing=on \
+                     label="ZEN" \
+                     icon.color=0xffa6e3a1
+  
+  # Make the bar transparent
+  $SB --bar color=$TRANSPARENT blur_radius=0
 else
-  for item in "${ITEMS[@]}" "${SPACES[@]}" "${APPS[@]}"; do
-    $SB --set "$item" drawing=on
-  done
-  $SB --set zen_mode icon.color=0xffcba6f7
-  # Trigger workspace update to ensure dots/icons reappear correctly
+  # Show all items
+  $SB --set "/.*/" drawing=on
+  
+  # Specifically hide indicators that are meant to be conditional
+  $SB --set fullscreen_indicator drawing=off
+  $SB --set "/apps\..*/" drawing=off
+  
+  # Reset zen_mode
+  $SB --set zen_mode label="" \
+                     icon.color=0xffcba6f7
+  
+  # Restore the bar
+  $SB --bar color=$BAR_COLOR blur_radius=30
+  
+  # Trigger workspace update to ensure dots/icons/apps reappear correctly
   $SB --trigger aerospace_workspace_change
 fi
