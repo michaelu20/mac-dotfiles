@@ -1,0 +1,154 @@
+#!/bin/bash
+
+# ============================================================
+# SketchyBar config — Catppuccin Mocha, clean & smooth
+# ============================================================
+
+# ---------- Colors (Catppuccin Mocha) ----------
+export BAR_COLOR=0xff1e1e2e
+export ITEM_BG_COLOR=0xff313244
+export ACCENT_COLOR=0xffcba6f7
+export TEXT_COLOR=0xffcdd6f4
+export SUBTEXT_COLOR=0xffa6adc8
+export GREEN=0xffa6e3a1
+export YELLOW=0xfff9e2af
+export RED=0xfff38ba8
+export BLUE=0xff89b4fa
+
+# ---------- Fonts ----------
+FONT="JetBrainsMono Nerd Font"
+
+# ============================================================
+# Bar appearance
+# ============================================================
+sketchybar --bar \
+  height=28 \
+  blur_radius=30 \
+  position=top \
+  sticky=on \
+  padding_left=10 \
+  padding_right=10 \
+  color=$BAR_COLOR \
+  corner_radius=0 \
+  margin=0 \
+  y_offset=0
+
+# ============================================================
+# Default item styling (applies to everything after)
+# ============================================================
+sketchybar --default \
+  icon.font="$FONT:Bold:14.0" \
+  icon.color=$TEXT_COLOR \
+  label.font="$FONT:Semibold:13.0" \
+  label.color=$TEXT_COLOR \
+  background.color=$ITEM_BG_COLOR \
+  background.corner_radius=6 \
+  background.height=20 \
+  padding_left=6 \
+  padding_right=6 \
+  label.padding_left=4 \
+  label.padding_right=8 \
+  icon.padding_left=8 \
+  icon.padding_right=4
+
+# ============================================================
+# LEFT SIDE — Apple logo + Spaces
+# ============================================================
+
+# Apple logo
+sketchybar --add item apple.logo left \
+  --set apple.logo \
+  icon=󰀵 \
+  icon.color=$ACCENT_COLOR \
+  icon.font="$FONT:Bold:16.0" \
+  label.drawing=off \
+  background.drawing=off \
+  click_script="open -a 'System Settings'"
+
+# Register the custom event AeroSpace will trigger
+sketchybar --add event aerospace_workspace_change
+
+# Register the custom event AeroSpace will trigger
+sketchybar --add event aerospace_workspace_change
+
+# AeroSpace workspaces (1-5)
+for sid in 1 2 3 4 5; do
+  sketchybar --add item space.$sid left \
+    --set space.$sid \
+    icon=$sid \
+    icon.padding_left=10 \
+    icon.padding_right=10 \
+    label.drawing=off \
+    background.color=$ITEM_BG_COLOR \
+    background.corner_radius=6 \
+    background.height=20 \
+    click_script="aerospace workspace $sid" \
+    script="$HOME/.config/sketchybar/plugins/aerospace.sh $sid" \
+    --subscribe space.$sid aerospace_workspace_change
+
+  sketchybar --add item apps.$sid left \
+    --set apps.$sid \
+    drawing=off \
+    icon.drawing=off \
+    label.font="sketchybar-app-font:Regular:14.0" \
+    label.color=$SUBTEXT_COLOR \
+    label.padding_left=0 \
+    label.padding_right=6 \
+    background.drawing=off \
+    --subscribe apps.$sid aerospace_workspace_change
+done
+
+# Active app name
+sketchybar --add item front_app left \
+  --set front_app \
+  icon.drawing=off \
+  background.drawing=off \
+  label.color=$ACCENT_COLOR \
+  label.font="$FONT:Bold:13.0" \
+  script="sketchybar --set front_app label=\"\$INFO\"" \
+  --subscribe front_app front_app_switched
+
+# ============================================================
+# RIGHT SIDE — Clock, Battery
+# ============================================================
+
+# Clock
+sketchybar --add item clock right \
+  --set clock \
+  update_freq=10 \
+  icon=󰥔 \
+  icon.color=$BLUE \
+  script="sketchybar --set clock label=\"\$(date '+%I:%M %p')\""
+
+# Battery
+sketchybar --add item battery right \
+  --set battery \
+  update_freq=120 \
+  icon.color=$GREEN \
+  script='
+        PERCENTAGE=$(pmset -g batt | grep -Eo "\d+%" | cut -d% -f1)
+        CHARGING=$(pmset -g batt | grep "AC Power")
+
+        if [ "$PERCENTAGE" = "" ]; then exit 0; fi
+
+        case "${PERCENTAGE}" in
+            9[0-9]|100) ICON="󰁹" ;;
+            [6-8][0-9]) ICON="󰂀" ;;
+            [3-5][0-9]) ICON="󰁾" ;;
+            [1-2][0-9]) ICON="󰁻" ;;
+            *)          ICON="󰁺" ;;
+        esac
+
+        if [[ "$CHARGING" != "" ]]; then ICON="󰂄"; fi
+
+        sketchybar --set battery icon="$ICON" label="${PERCENTAGE}%"
+    ' \
+  --subscribe battery system_woke power_source_change
+
+
+# ============================================================
+# Force all items to update on load
+# ============================================================
+sketchybar --update
+
+echo "SketchyBar loaded 🎉"
