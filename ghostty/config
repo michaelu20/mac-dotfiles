@@ -1,0 +1,32 @@
+# Shell — launch tmux (which starts nushell)
+command = /opt/homebrew/bin/tmux new-session -A -s main
+
+
+# Font — install a Nerd Font first (brew install --cask font-jetbrains-mono-nerd-font)
+font-family = JetBrainsMono Nerd Font Mono
+font-size = 14
+
+# Window
+window-padding-x = 12
+window-padding-y = 10
+confirm-close-surface = false
+
+# macOS — lets Option key work properly (important for terminal shortcuts)
+macos-option-as-alt = true
+
+# Appearance
+theme = "Catppuccin Mocha"
+cursor-style = bar
+cursor-style-blink = false
+background-opacity = 0.85
+background-blur-radius = 20
+window-decoration = false
+
+# Behavior
+copy-on-select = false
+clipboard-paste-protection = false
+
+keybind = cmd+h=goto_split:left
+keybind = cmd+j=goto_split:bottom
+keybind = cmd+k=goto_split:top
+keybind = cmd+l=goto_split:right
