@@ -1,6 +1,6 @@
 config-version = 2
 after-startup-command = []
-exec-on-workspace-change = ['/bin/bash', '-c', '/Users/micair/.config/aerospace/on_workspace_change.sh']
+exec-on-workspace-change = ['/bin/bash', '-c', '/Users/micair/zdev/devOps/dev2/dotfiles/aerospace/on_workspace_change.sh']
 start-at-login = true
 enable-normalization-flatten-containers = true
 enable-normalization-opposite-orientation-for-nested-containers = true
@@ -60,3 +60,10 @@ run = 'move-node-to-workspace 1'
 [[on-window-detected]]
 if.app-id = 'com.google.Chrome'
 run = 'move-node-to-workspace 3'
+
+[[on-window-detected]]
+if.app-id = 'com.chabomakers.Antinote'
+run = [
+    'layout floating',
+    "exec-and-forget osascript -e 'tell application \"System Events\" to tell process \"Antinote\" to set size of window 1 to {500, 500}'"
+]
